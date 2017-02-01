@@ -3,7 +3,7 @@ package lru_test
 import (
 	"testing"
 
-	"github.com/newhook/lru"
+	"github.com/khaledmdiab/lru"
 )
 
 func TestCache(t *testing.T) {
@@ -114,4 +114,9 @@ func TestCache(t *testing.T) {
 		t.Error("evicted: incorrect")
 	}
 	evicted = nil
+}
+
+func TestCacheThreadSafe(t *testing.T) {
+	t.Log("This does NOT test (un)pinning items...")
+
 }
