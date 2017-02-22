@@ -107,7 +107,6 @@ func (lru *SegmentCache) HasKey(key string) bool {
 // if full.
 func (lru *SegmentCache) Add(key string, data interface{}, size int64) {
 	lru.lock.Lock()
-
 	// Check for existing item, replacing the data if already
 	// present.
 	if e, ok := lru.cache[key]; ok {
@@ -122,7 +121,6 @@ func (lru *SegmentCache) Add(key string, data interface{}, size int64) {
 	lru.usedCapacity += size
 	lru.cache[key] = entry
 	lru.lock.Unlock()
-
 	lru.evict()
 }
 
@@ -131,14 +129,12 @@ func (lru *SegmentCache) PrintStats() {
 	lru.lock.Lock()
 	defer lru.lock.Unlock()
 
-	fmt.Printf("%d records, %d in queue, %d pinned\n", len(lru.cache), lru.q.Len(), len(lru.cache)-lru.q.Len())
+	fmt.Printf("LRU used capacity: %d\n", lru.usedCapacity)
 }
 
 // Evict the least recently used item from the cache.
 func (lru *SegmentCache) evict() {
 	lru.lock.Lock()
-	defer lru.lock.Unlock()
-
 	for lru.usedCapacity > lru.capacity {
 		e := lru.q.Remove(lru.q.Back()).(*cacheSegmentEntry)
 		lru.usedCapacity -= e.size
@@ -147,4 +143,7 @@ func (lru *SegmentCache) evict() {
 			lru.evictedCallback(e.key)
 		}
 	}
+	lru.lock.Unlock()
+
+	lru.PrintStats()
 }
